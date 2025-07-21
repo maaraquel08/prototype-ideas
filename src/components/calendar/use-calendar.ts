@@ -66,8 +66,9 @@ export function useCalendar(props: CalendarProps, emit: CalendarEmits) {
     // Add current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day)
-      const isSelected =
+      const isSelected = Boolean(
         selectedDate.value && date.toDateString() === selectedDate.value.toDateString()
+      )
 
       dates.push({
         day,
@@ -117,9 +118,16 @@ export function useCalendar(props: CalendarProps, emit: CalendarEmits) {
     if (props.minDate && dateObj.date < props.minDate) return
     if (props.maxDate && dateObj.date > props.maxDate) return
 
-    selectedDate.value = dateObj.date
-    emit('update:modelValue', dateObj.date)
-    emit('dateSelected', dateObj.date)
+    // Toggle functionality: if clicking on already selected date, unselect it
+    if (selectedDate.value && dateObj.date.toDateString() === selectedDate.value.toDateString()) {
+      selectedDate.value = null
+      emit('update:modelValue', null)
+      emit('dateSelected', null)
+    } else {
+      selectedDate.value = dateObj.date
+      emit('update:modelValue', dateObj.date)
+      emit('dateSelected', dateObj.date)
+    }
   }
 
   const isDateDisabled = (date: CalendarDate): boolean => {

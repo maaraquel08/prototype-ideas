@@ -1,68 +1,35 @@
 <template>
-  <div class="app-container">
-    <!-- Main Content -->
-    <div class="overtime-request-container spr-background-color-surface">
-      <!--Body-->
-      <div class="body spr-max-w-md mx-auto">
-        <!-- Header Section -->
-        <div class="header-section">
-          <div class="back-button">
-            <!-- Back arrow and "Create Request" title -->
-          </div>
-          <div class="info-icon">
-            <!-- Information icon -->
-          </div>
-        </div>
+  <!-- Main Content -->
+  <div
+    class="overtime-request-container spr-background-color-surface flex flex-col items-center justify-start h-[100vh]"
+  >
+    <!-- Calendar Card Structure -->
+    <div
+      class="w-full h-fit spr-background-color rounded-2xl overflow-hidden calendar-card max-w-lg border spr-border-color-weak"
+    >
+      <!-- Header Section -->
+      <div class="bg-white border-b border-gray-200 p-4">
+        <h3 class="spr-subheading-xs">Overtime Dates</h3>
+        <p class="spr-body-sm-regular">Select the date you want to apply for an overtime</p>
+      </div>
 
-        <!-- Main Content Area -->
-        <div class="main-content">
-          <!-- Left Column: Calendar Section -->
-          <div class="left-column space-y-6 h-fit">
-            <!-- Calendar Card Structure -->
-            <div
-              class="w-full h-fit spr-background-color rounded-2xl overflow-hidden calendar-card"
-            >
-              <!-- Header Section -->
-              <div class="bg-white border-b border-gray-200 p-4">
-                <h3 class="spr-subheading-xs">Overtime Dates</h3>
-                <p class="spr-body-sm-regular">Select the date you want to apply for an overtime</p>
-              </div>
-
-              <!-- Card Body -->
-              <div class="card-body spr-background-color">
-                <div class="p-4 border-b spr-border-color-weak overflow-hidden">
-                  <Calendar v-model="selectedOvertimeDate" @date-selected="handleDateSelected" />
-                </div>
-                <!-- Shift Card Lists -->
-                <div
-                  class="shift-selection-wrapper"
-                  :class="{ 'is-expanded': selectedOvertimeDate }"
-                >
-                  <div class="shift-selection-content">
-                    <ShiftSelection v-model="selectedShiftId" :shifts="availableShifts" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Details Section -->
-          <div class="right-column">
-            <div class="spr-background-color rounded-2xl overflow-hidden">
-              <ShiftPreview />
-              <DetailsForm
-                v-model:otClassification="otClassification"
-                v-model:timeFrom="timeFrom"
-                v-model:timeTo="timeTo"
-                v-model:otMinutes="otMinutes"
-                v-model:reason="reason"
-              />
-              <AttachmentsSection />
-            </div>
-          </div>
+      <!-- Card Body -->
+      <div class="card-body spr-background-color">
+        <div class="p-4 overflow-hidden">
+          <Calendar v-model="selectedOvertimeDate" @date-selected="handleDateSelected" />
         </div>
       </div>
     </div>
+
+    <!-- Shift Card Lists -->
+
+    <ShiftSelection
+      v-model="selectedShiftId"
+      :shifts="availableShifts"
+      :is-expanded="!!selectedOvertimeDate"
+      :is-loading="isLoadingShifts"
+      class="rounded-2xl overflow-hidden w-full h-fit calendar-card max-w-lg p-4"
+    />
   </div>
 </template>
 
@@ -83,6 +50,7 @@ const otMinutes = ref('')
 const reason = ref('')
 const selectedShiftId = ref<string>('')
 const availableShifts = ref<any[]>([])
+const isLoadingShifts = ref(false)
 
 // Default shift available for all dates
 const defaultShift = {
@@ -167,8 +135,24 @@ const shiftsByDate: { [key: string]: any[] } = {
 }
 
 // Event handlers
-const handleDateSelected = (date: Date) => {
+const handleDateSelected = async (date: Date | null) => {
   selectedOvertimeDate.value = date
+
+  if (date === null) {
+    // Don't clear shifts - keep them in DOM for animation
+    // Just reset the selected shift and stop loading
+    selectedShiftId.value = ''
+    isLoadingShifts.value = false
+    return
+  }
+
+  // Show loading state
+  isLoadingShifts.value = true
+  selectedShiftId.value = '' // Reset selected shift when date changes
+
+  // Simulate API call delay for better UX (remove this in production)
+  await new Promise((resolve) => setTimeout(resolve, 400)) // Reduced to 400ms for faster loading
+
   const dateString = date.toISOString().split('T')[0]
   const dateSpecificShifts = shiftsByDate[dateString] || []
 
@@ -179,18 +163,12 @@ const handleDateSelected = (date: Date) => {
   }
 
   availableShifts.value = combinedShifts
-  selectedShiftId.value = '' // Reset selected shift when date changes
+  isLoadingShifts.value = false // Hide loading state
 }
 </script>
 
 <style scoped>
-.app-container {
-  display: flex;
-  height: 100vh;
-}
-
 .overtime-request-container {
-  flex-grow: 1;
   padding: 2rem;
   overflow-y: auto;
 }
@@ -199,54 +177,5 @@ const handleDateSelected = (date: Date) => {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.shift-selection-wrapper {
-  overflow: hidden;
-  transition: height 0.3s ease-out;
-}
-
-.calendar-card {
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
-  transition: height 0.3s ease-out;
-}
-
-.card-body {
-  background-color: #f9fafb; /* spr-background-color-surface */
-  transition: height 0.3s ease-out;
-}
-
-/* Additional responsive styles if needed */
-@media (max-width: 1024px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

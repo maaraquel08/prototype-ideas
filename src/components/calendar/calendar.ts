@@ -15,7 +15,7 @@ export interface CalendarProps {
 
 export interface CalendarEmits {
   (e: 'update:modelValue', value: Date | null): void
-  (e: 'dateSelected', value: Date): void
+  (e: 'dateSelected', value: Date | null): void
 }
 
 export const calendarProps = {
