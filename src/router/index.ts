@@ -23,9 +23,19 @@ const router = createRouter({
       component: () => import('../views/ComponentsView/Pages/DropdownListView.vue'),
     },
     {
+      path: '/components/calendar',
+      name: 'calendar',
+      component: () => import('../views/ComponentsView/Pages/CalendarView.vue'),
+    },
+    {
       path: '/projects',
       name: 'projects',
-      component: () => import('../views/ProjectsView.vue'),
+      component: () => import('../views/ProjectsView/ProjectsView.vue'),
+    },
+    {
+      path: '/projects/overtime',
+      name: 'overtime-project',
+            component: () => import('../views/ProjectsView/Pages/OvertimeProjectView/index.vue'),
     },
   ],
 })

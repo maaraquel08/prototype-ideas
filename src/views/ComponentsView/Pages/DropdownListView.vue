@@ -39,7 +39,7 @@
         <div
           v-for="n in initialItems"
           :key="n"
-          class="h-8 bg-gray-200 rounded-lg animate-pulse my-2"
+          class="h-8 bg-gray-200 rounded-md animate-pulse my-2"
         ></div>
       </div>
 

@@ -10,6 +10,15 @@
           </template>
         </spr-card>
       </div>
+      
+      <!-- Calendar Card -->
+      <div class="cursor-pointer" @click="navigateToCalendar">
+        <spr-card title="Calendar Component">
+          <template #content>
+            <p class="text-gray-600">A reusable calendar component for date selection.</p>
+          </template>
+        </spr-card>
+      </div>
     </div>
   </div>
 </template>
@@ -21,6 +30,10 @@ const router = useRouter()
 
 const navigateToDropdownList = () => {
   router.push('/components/dropdown-list')
+}
+
+const navigateToCalendar = () => {
+  router.push('/components/calendar')
 }
 
 </script>
